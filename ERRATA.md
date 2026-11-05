@@ -34,3 +34,4 @@ identity, or the best-checkpoint held-out result (4.3469 → 2.2201 nats, −48.
   (VideoMAE v2) encoders in Algorithm 1 are design scope.
 * Figure 2 of v1 is a schematic. The historical run's raw log and checkpoint were not archived;
   v1.1 writes both for every new run.
+
