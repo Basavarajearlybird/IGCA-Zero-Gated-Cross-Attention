@@ -1,4 +1,4 @@
-"""Training / evaluation pipeline shared by ``falcon_local.py`` and the Kaggle notebook.
+"""Training / evaluation pipeline shared by ``falcon_local.py`` and the Kaggle notebook. 
 
 * Flickr8k image-captioning data (``jxie/flickr8k``: 6,000 train / 1,000 validation /
   1,000 test images). Training uses the train split; held-out loss uses a disjoint split
