@@ -1,4 +1,4 @@
-"""IGCA: zero-gated cross-attention bridge for frozen decoder language models.
+"""IGCA: zero-gated cross-attention bridge for frozen decoder language models. 
 
 Reference implementation for "Zero-Gated Cross-Attention" (arXiv:2611.01116).
 
