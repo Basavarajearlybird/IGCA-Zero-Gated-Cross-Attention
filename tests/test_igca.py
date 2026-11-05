@@ -173,3 +173,4 @@ def test_caption_pipeline_offline():
     opt, _ = pipe.build_optimizer(bridge, 1e-2, 1e-3, paged_8bit=False)
     loss = pipe.train_step(model, bridge, batch, pipe.embed_images(vision, batch["pixel_values"]), opt)
     assert loss > 0 and bridge.mean_gate() > 0         # one update opens the gate
+
