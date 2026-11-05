@@ -1,4 +1,4 @@
-# Core (CPU verification, tests, tiny-random demo)
+# Core (CPU verification, tests, tiny-random demo) 
 torch>=2.1
 transformers==4.48.3
 accelerate==1.4.0
