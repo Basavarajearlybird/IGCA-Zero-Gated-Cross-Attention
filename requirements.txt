@@ -1,0 +1,14 @@
+# Core (CPU verification, tests, tiny-random demo)
+torch>=2.1
+transformers==4.48.3
+accelerate==1.4.0
+numpy
+pillow
+pytest
+
+# Real-data runs (Flickr8k + CLIP)
+datasets
+huggingface_hub
+matplotlib
+
+# GPU only (4-bit NF4 + PagedAdamW8bit): pip install bitsandbytes
