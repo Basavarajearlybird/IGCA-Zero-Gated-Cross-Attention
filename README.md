@@ -270,7 +270,7 @@ Short reconciliation (details in [ERRATA.md](ERRATA.md)). The IGCA mechanism is 
 }
 ```
 
-**Acknowledgements.** Flamingo (Alayrac et al., 2022) for the gated cross-attention principle; Falcon (TII), CLIP (OpenAI) and Flickr8k (Hodosh et al., 2013) for models and data.
+**Built on** Flamingo (Alayrac et al., 2022) for the gated cross-attention principle; Falcon (TII), CLIP (OpenAI) and Flickr8k (Hodosh et al., 2013) for models and data.
 
 <div align="center">
 
