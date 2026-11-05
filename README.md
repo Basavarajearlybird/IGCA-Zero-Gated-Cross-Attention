@@ -253,7 +253,7 @@ Short reconciliation (details and checks in [ERRATA.md](ERRATA.md)). None of the
 }
 ```
 
-**Acknowledgements.** Flamingo (Alayrac et al., 2022) for the gated cross-attention principle; Falcon (TII), CLIP (OpenAI) and Flickr8k (Hodosh et al., 2013) for models and data.
+**Built on.** The gated cross-attention idea from Flamingo (Alayrac et al., 2022); Falcon (TII) as the frozen backbone, CLIP (OpenAI) as the image encoder, and Flickr8k (Hodosh et al., 2013) for training and evaluation.
 
 <div align="center">
 
