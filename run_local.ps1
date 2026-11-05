@@ -1,4 +1,4 @@
-# run_local.ps1 - one-command launcher for IGCA on Windows.
+# run_local.ps1 - one-command launcher for IGCA on Windows. 
 #
 #   CPU machine : creates .venv, installs the CPU stack, runs the test suite and the
 #                 tiny-random Falcon demo (exact zero-gate identity + grounding in ~1 min).
