@@ -9,7 +9,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![Quantization](https://img.shields.io/badge/Backbone-Frozen_Falcon--40B_·_4--bit_NF4-00A67E?style=for-the-badge)](#-results)
 [![Init Identity](https://img.shields.io/badge/Step--0_Identity-0.00e%2B00_(bit--exact)-2EA44F?style=for-the-badge)](#-verified-in-this-repository)
-[![Held-Out](https://img.shields.io/badge/v1--Reported_Held--Out_Loss-%E2%88%9248.9%25_(Falcon--40B)-8A2BE2?style=for-the-badge)](#-results)
+[![Verified](https://img.shields.io/badge/Verified-Falcon--7B_·_5_seeds_·_−50.5%25_held--out-2E8B57?style=for-the-badge)](#-results)
 [![Tests](https://img.shields.io/badge/Tests-21_passing_(CPU)-0A66C2?style=for-the-badge&logo=pytest&logoColor=white)](#-quickstart)
 [![License](https://img.shields.io/badge/License-MIT-1E293B?style=for-the-badge)](LICENSE)
 
@@ -30,7 +30,7 @@
 |---|---|
 | 🔒 **Bit-exact identity at init** | $\alpha_l^{(0)}=0 \Rightarrow h'_l = h_l$. Asserted as `== 0.0` (not a tolerance) before any training, on three decoder families. |
 | 🧊 **40B-scale, fully frozen** | Falcon-40B in 4-bit NF4 with `PagedAdamW8bit`; only the bridges train. Each bridge is placed on the GPU of the layer it hooks, so `device_map="auto"` sharding just works. |
-| 🎯 **Strong signal from a nearly-closed gate** | −2.13 nats held-out with mean $\lvert\tanh\alpha\rvert = 0.0713$ (arXiv v1 report): the frozen decoder is conditioned gently, not overwritten. |
+| 🎯 **Verified on Falcon-7B, 5 seeds** | Exact 0.00e+00 identity at initialisation on every seed; −50.5% held-out loss, matching an un-gated adapter with ~5× lower seed-to-seed spread ([results](#-results)). |
 | 🧪 **Ablation built in** | `--variant ungated` runs the standard adapter of Eq. (1) under identical settings, isolating the effect of the gate. |
 | 🔌 **Backbone-agnostic hooks** | Auto-discovers decoder stacks for Falcon, BLOOM, LLaMA/OpenLLaMA/Mistral/Qwen, OPT, GPT-NeoX and MPT, with no model surgery. |
 | 🧾 **Audit-ready runs** | Every run writes `run_manifest.json`, per-step `loss_log.csv` and `eval_log.csv`; a predefined decision rule labels each run *grounded / inconclusive / vacuous*. |
@@ -94,8 +94,7 @@ flowchart TD
     end
 
     subgraph Reported["REPORTED IN ARXIV V1: raw logs not archived"]
-        Loss["Falcon-40B held-out loss: 4.3469 → 2.2201 nats<br/>gate at best checkpoint: 0.0713"]
-    end
+         Loss["arXiv v1 Falcon-40B held-out figures: withdrawn (see ERRATA.md)"]
 
     subgraph Proposed["PROPOSED SYSTEM: design, not yet evaluated"]
         Ctrl["Agentic controller<br/>reason · retrieve · inspect"]
@@ -148,38 +147,44 @@ Reproduce any row offline with `python igca.py --count tiiuae/falcon-40b`.
 
 ## 📊 Results
 
-### Falcon-40B (arXiv:2611.01116)
+### ✅ Verified v1.1 results (Falcon-7B, Flickr8k, 5 seeds)
 
-| Metric | Gate-off (frozen Falcon-40B) | **IGCA (gate-on)** | Δ |
-|---|:---:|:---:|---|
-| Step-0 max output difference | — | **0.00e+00** | exact algebraic no-op |
-| **Best held-out loss** | 4.3469 | **2.2201** | **−2.1268 nats (−48.9%)** |
-| Average held-out loss | 4.3423 | 2.2498 | −2.0925 nats (−48.2%) ✱ |
-| Mean gate at best checkpoint | 0 | 0.0713 | gentle conditioning |
-| Training loss (59,500 updates) | — | 3.9403 → 0.0007 | ≈ 9.9 epochs over 6,000 Flickr8k image–caption pairs (`caption_0`) ✱ |
-| Trainable parameters | 0 | 906,166,278 | 6 × 151,027,713 ✱ |
-| Setup | — | — | Flickr8k captions · CLIP ViT-L/14 · batch 1 · seq 48 · `PagedAdamW8bit` |
+Frozen **Falcon-7B** (4-bit NF4) + CLIP ViT-L/14, six IGCA bridges (layers 3, 7, 11, 15, 19, 23; 303.7M trainable parameters).
+Training: 6,000 steps = one full pass over the 6,000 Flickr8k training captions (batch 1). Held-out: 200 captions from the separate Flickr8k validation split, evaluated every 500 steps.
+Hardware: 2 × Tesla T4 (Kaggle), code commit `3997ef6`, 10 runs, 8.4 GPU-hours. Every number below comes from `runs/*/run_manifest.json` and `runs/*/eval_log.csv` (`python summarize_runs.py runs`).
 
-✱ corrected or clarified relative to arXiv v1; see [Notes on arXiv v1](#-notes-on-arxiv-v1). Figures in this table are as reported in v1; the original run's raw logs were not archived.
+Held-out loss in nats (lower is better). Frozen Falcon-7B: **3.8355**. Mean ± standard deviation over seeds 0–4.
 
-### ✅ Verified in this repository
+| Variant | Change at step 0 | Best held-out | Held-out at step 6,000 | Gain vs frozen |
+|---|:-:|:-:|:-:|:-:|
+| **Gated IGCA** (tanh(α), α = 0) | **0.0000 ± 0.0000** | **1.8986 ± 0.0134** | **1.8999 ± 0.0132** | **50.5 ± 0.4%** |
+| Un-gated adapter (same bridges, no gate) | +0.4956 ± 0.2200 | 1.9070 ± 0.0313 | 1.9540 ± 0.0725 | 50.3 ± 0.8% |
 
-Run on CPU in about a minute, with no downloads, using random-initialised backbones (`pytest -q`, `python falcon_local.py --tiny-random`). These checks validate the mechanism and the wiring, not the performance of pretrained checkpoints:
+**What this shows**
 
-| Check | Result |
-|---|---|
-| Step-0 identity, IGCA, on **Falcon, LLaMA and BLOOM** decoder layouts | **0.00e+00** (bit-exact) |
-| Step-0 perturbation, **un-gated** adapter (Eq. 1), same seed | 5.34e-01 max logit change |
-| Gradient isolation | backbone gradients `None`; at α = 0 only the gate receives gradient |
-| Parameter formula vs PyTorch `nn.MultiheadAttention` | exact match, including 151,027,713 per Falcon-40B bridge |
-| Toy grounding task (modality-only answer), 300 steps | held-out **6.961 → 2.663 nats**; gate opens 0 → 0.752; matches the un-gated final loss (2.657) **while keeping the exact identity at init** |
+- **Exact identity at initialisation (5/5 seeds):** the gated bridge leaves Falcon-7B's output unchanged (max logit difference 0.00e+00). The un-gated adapter worsens held-out loss by +0.20 to +0.80 nats before training.
+- **Same final quality:** both variants roughly halve the held-out loss. The difference in best held-out loss is not significant (−0.008 nats, paired t-test p = 0.63, 3/5 seeds favour gated).
+- **More consistent across seeds:** the spread of the final held-out loss is about 5× smaller with the gate (SD 0.013 vs 0.073). Gated runs did not get worse after their best point; un-gated runs rose by up to +0.16 nats late in training.
+- **Trade-off:** the un-gated adapter learns faster at first (step 500: 2.23 vs 2.38, 5/5 seeds). The gate starts closed and opens slowly (final gate ≈ 0.06).
+
+The held-out figures in arXiv v1 (Falcon-40B, −48.9%) could not be traced to a run and are withdrawn; see [ERRATA.md](ERRATA.md). These Falcon-7B results replace them. Falcon-40B has not been re-run.
+
+| Seed | Gated best | Un-gated best | Gated step 6,000 | Un-gated step 6,000 | Un-gated step-0 shift |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| 0 | 1.9169 | 1.9115 | 1.9169 | 1.9503 | +0.4290 |
+| 1 | 1.8890 | 1.9085 | 1.8890 | 2.0733 | +0.7964 |
+| 2 | 1.8942 | 1.9544 | 1.9011 | 1.9544 | +0.2049 |
+| 3 | 1.8848 | 1.8913 | 1.8848 | 1.8913 | +0.4444 |
+| 4 | 1.9079 | 1.8695 | 1.9079 | 1.9006 | +0.6035 |
+
 
 ### Evidence boundary
 
 | Outcome | Status |
 |---|---|
-| Step-0 identity, held-out loss (Falcon-40B) | ✅ reported |
-| Matched Falcon-40B ablation: frozen vs un-gated vs IGCA | 🛠️ code complete and executable on large GPUs (`--variant ungated`); run pending |
+| Matched ablation: frozen vs un-gated vs IGCA (Falcon-7B, 5 seeds) | ✅ done, logs in `runs/` |
+| Falcon-40B held-out loss (arXiv v1) | ❌ withdrawn, not traceable to a run |
+| Matched Falcon-40B ablation | ⏳ not re-run |
 | OpenLLaMA / BLOOM checkpoints | 🛠️ hooks tested on both layouts; runs pending |
 | Audio / video encoders · downstream VQA or hallucination benchmarks · latency | ⏳ design scope |
 
@@ -188,8 +193,8 @@ Run on CPU in about a minute, with no downloads, using random-initialised backbo
 ## 🚀 Quickstart
 
 ```bash
-git clone https://github.com/Basavarajearlybird/IGCA-Zero-Gated-Cross-Attention-
-cd IGCA-Zero-Gated-Cross-Attention-
+git clone https://github.com/Basavarajearlybird/IGCA-Zero-Gated-Cross-Attention
+cd IGCA-Zero-Gated-Cross-Attention
 pip install -r requirements.txt
 ```
 
@@ -235,6 +240,7 @@ IGCA-Zero-Gated-Cross-Attention/
 
 ## 🧭 Roadmap
 
+- [x] **Matched ablation on Falcon-7B (5 seeds)**: see [Results](#-results)
 - [ ] **Matched Falcon-40B ablation: frozen vs un-gated vs IGCA** (same data, seed, budget). Code is complete and runs as-is on a ≥ 30 GB GPU:
       `python falcon_local.py --model tiiuae/falcon-40b --data flickr8k --steps 59500 --variant ungated`
 - [ ] Validation-based checkpoint selection with a single final evaluation on the untouched Flickr8k test split
@@ -247,8 +253,7 @@ IGCA-Zero-Gated-Cross-Attention/
 
 ## 📝 Notes on arXiv v1
 
-Short reconciliation (details in [ERRATA.md](ERRATA.md)). The IGCA mechanism is unchanged. The Falcon-40B figures are kept as reported in v1; the original logs were not archived, so v1.1 provides a corrected, fully logged pipeline for new runs.
-
+Short reconciliation (details in [ERRATA.md](ERRATA.md)). The IGCA mechanism is unchanged. The Falcon-40B held-out figures in v1 could not be traced to a run and are withdrawn. Verified Falcon-7B results (5 seeds, fully logged) are in [Results](#-results).
 | v1 | Correct | |
 |---|---|---|
 | 40,404,961,288 trainable parameters | **906,166,278** | transcription error; `python igca.py --count tiiuae/falcon-40b` |
