@@ -94,7 +94,7 @@ flowchart TD
     end
 
     subgraph Reported["REPORTED IN ARXIV V1: raw logs not archived"]
-           The Falcon-40B held-out figures in arXiv v1 (−48.9%) could not be reproduced from the v1 code (its held-out split was empty), so they are not used as results; see [ERRATA.md](ERRATA.md). The logged Falcon-7B runs above supersede them. A Falcon-40B re-run with the same v1.1 pipeline is planned for arXiv v2.
+          Loss["arXiv v1 Falcon-40B held-out figures: not verified (see ERRATA.md); re-run planned for arXiv v2"]
 
     subgraph Proposed["PROPOSED SYSTEM: design, not yet evaluated"]
         Ctrl["Agentic controller<br/>reason · retrieve · inspect"]
@@ -167,7 +167,7 @@ Held-out loss in nats (lower is better). Frozen Falcon-7B: **3.8355**. Mean ± s
 - **More consistent across seeds:** the spread of the final held-out loss is about 5× smaller with the gate (SD 0.013 vs 0.073). Gated runs did not get worse after their best point; un-gated runs rose by up to +0.16 nats late in training.
 - **Trade-off:** the un-gated adapter learns faster at first (step 500: 2.23 vs 2.38, 5/5 seeds). The gate starts closed and opens slowly (final gate ≈ 0.06).
 
-The held-out figures in arXiv v1 (Falcon-40B, −48.9%) could not be traced to a run and are withdrawn; see [ERRATA.md](ERRATA.md). These Falcon-7B results replace them. Falcon-40B has not been re-run.
+The Falcon-40B held-out figures in arXiv v1 (−48.9%) could not be reproduced from the v1 code (its held-out split was empty), so they are not used as results; see [ERRATA.md](ERRATA.md). The logged Falcon-7B runs above supersede them. A Falcon-40B re-run with the same v1.1 pipeline is planned for arXiv v2.
 
 | Seed | Gated best | Un-gated best | Gated step 6,000 | Un-gated step 6,000 | Un-gated step-0 shift |
 |:-:|:-:|:-:|:-:|:-:|:-:|
@@ -242,6 +242,7 @@ IGCA-Zero-Gated-Cross-Attention/
 
 - [x] **Matched ablation on Falcon-7B (5 seeds)**: see [Results](#-results)
 - [ ] **Falcon-40B re-run: gated vs un-gated, several seeds, 6,000 steps** (planned for arXiv v2). Runs as-is on a ≥ 48 GB GPU:
+      `python falcon_local.py --model tiiuae/falcon-40b --data flickr8k --steps 6000 --variant ungated`
 - [ ] Validation-based checkpoint selection with a single final evaluation on the untouched Flickr8k test split
 - [ ] All five captions per image (30,000 pairs) and FP32 adapter master weights
 - [ ] OpenLLaMA and BLOOM backbones; audio (Whisper) and video (VideoMAE v2) encoders
@@ -253,6 +254,7 @@ IGCA-Zero-Gated-Cross-Attention/
 ## 📝 Notes on arXiv v1
 
 Short reconciliation (details in [ERRATA.md](ERRATA.md)). The IGCA mechanism is unchanged. The Falcon-40B held-out figures in v1 are not verified (the v1 held-out split was empty) and are superseded by the logged Falcon-7B runs in [Results](#-results). A Falcon-40B re-run is planned for arXiv v2.
+README: fix diagram node, align v1 wording, restore 40B command
 | v1 | Correct | |
 |---|---|---|
 | 40,404,961,288 trainable parameters | **906,166,278** | transcription error; `python igca.py --count tiiuae/falcon-40b` |
