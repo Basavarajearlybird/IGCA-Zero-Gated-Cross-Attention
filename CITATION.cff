@@ -3,23 +3,23 @@ message: "If you use this software, please cite the preprint below."
 title: "IGCA: Zero-Gated Cross-Attention (reference implementation)"
 version: "1.2.0"
 license: MIT
-repository-code: "https://github.com/Basavarajearlybird/IGCA-Zero-Gated-Cross-Attention-"
+repository-code: "https://github.com/Basavarajearlybird/IGCA-Zero-Gated-Cross-Attention"
 authors:
-  - family-names: "Basavaraj"
-    given-names: "R M"
+  - family-names: "R M"
+    given-names: "Basavaraj"
     orcid: "https://orcid.org/0009-0002-4758-0965"
-  - family-names: "Manav"
-    given-names: "Verma"
+  - family-names: "Verma"
+    given-names: "Manav"
 preferred-citation:
   type: article
   title: "Zero-Gated Cross-Attention"
   authors:
-    - family-names: "Basavaraj"
-      given-names: "R M"
+    - family-names: "R M"
+      given-names: "Basavaraj"
       orcid: "https://orcid.org/0009-0002-4758-0965"
 
-    - family-names: "Manav"
-      given-names: "Verma"
+    - family-names: "Verma"
+      given-names: "Manav"
   journal: "arXiv preprint"
   identifiers:
     - type: other
