@@ -4,16 +4,12 @@ These notes reconcile the v1 preprint with implementation release v1.1 and will 
 the next arXiv version. The parameter count and the average held-out improvement are corrected
 below; the IGCA mechanism and the exact zero-gate identity are unchanged.
 
-The historical best-checkpoint results (4.3469 → 2.2201 nats, −48.9%) are retained as reported
-in v1. The original checkpoint and raw logs were not archived, and the v1 notebook's held-out
-slice was empty under the documented Flickr8k split, so these values cannot be regenerated from
-the v1 notebook. v1.1 provides a corrected pipeline (disjoint held-out data, persistent logging);
-new runs with it are new experiments, not a retrospective verification of the v1 figures.
+The v1 best-checkpoint results (4.3469 → 2.2201 nats, −48.9%) are **not verified and should not be cited**. The original checkpoint and raw logs were not archived, and the v1 notebook's held-out slice was empty under the documented Flickr8k split, so these values cannot be regenerated. They are superseded by the fully logged Falcon-7B runs (5 seeds) in `runs/` and the README. A Falcon-40B re-run with the v1.1 pipeline is planned for arXiv v2.
 
 | # | Item | v1 preprint | Corrected / clarified | How to check |
 |:-:|---|---|---|---|
 | 1 | Trainable adapter parameters (Falcon-40B, 6 modules) | 40,404,961,288 | **906,166,278** = 6 × 151,027,713 (H = 8192, D = 1024). v1 figure is a transcription error. | `python igca.py --count tiiuae/falcon-40b` |
-| 2 | Average held-out improvement | 1.9075 nats | **2.0925 nats** (4.3423 − 2.2498; −48.2%). Best-checkpoint figures (2.1268 nats, −48.9%) are correct. | arithmetic |
+| 2 | Average held-out improvement | 1.9075 nats | **2.0925 nats** (4.3423 − 2.2498; −48.2%). Best-checkpoint figures (2.1268 nats, −48.9%) are not verified; see above. | arithmetic |
 | 3 | Training data | not named | Flickr8k (`jxie/flickr8k`, `caption_0`), CLIP ViT-L/14 image tokens, prompt `Image caption:`; 6,000 image–caption pairs (one caption per image). The v1 notebook's intended 30-caption held-out slice (`train[59500:59530]`) was empty. v1.1 evaluates on the disjoint validation split (default 200, up to 1,000). | `igca_pipeline.py` |
 | 4 | Train loss 3.9403 → 0.0007 | reported without epoch count | 59,500 updates at batch 1 ≈ 9.9 passes over the 6,000 training pairs. The near-zero training loss is consistent with memorisation and is not evidence of generalisation. Because the v1 notebook's held-out slice was empty, historical checkpoint selection on valid held-out data cannot be established; in v1.1, checkpoint selection uses the disjoint validation split. | manifest field `data.epochs` |
 | 5 | Related work | Flamingo not cited | The tanh-gated, zero-initialised cross-attention principle follows **Flamingo** (Alayrac et al., NeurIPS 2022). IGCA's contribution is isolating it as a stand-alone bridge on a frozen, 4-bit-quantised 40B decoder with bit-exact identity verification. | — |
