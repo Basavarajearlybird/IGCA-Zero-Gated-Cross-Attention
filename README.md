@@ -63,7 +63,7 @@ flowchart LR
     E_perp -->|"key / value"| Proj
     Proj --> MHA --> Gate
     H_in -->|"residual stream (untouched)"| H_out
-    Gate -->|"step 0: exactly 0 · trained: 0.0713"| H_out
+    Gate -->|"step 0: exactly 0 · trained (Falcon-7B): ≈ 0.06"| H_out
 ```
 
 ### 2 · Run pipeline: every new experiment is traceable
@@ -94,7 +94,7 @@ flowchart TD
     end
 
     subgraph Reported["REPORTED IN ARXIV V1: raw logs not archived"]
-         Loss["arXiv v1 Falcon-40B held-out figures: withdrawn (see ERRATA.md)"]
+           The Falcon-40B held-out figures in arXiv v1 (−48.9%) could not be reproduced from the v1 code (its held-out split was empty), so they are not used as results; see [ERRATA.md](ERRATA.md). The logged Falcon-7B runs above supersede them. A Falcon-40B re-run with the same v1.1 pipeline is planned for arXiv v2.
 
     subgraph Proposed["PROPOSED SYSTEM: design, not yet evaluated"]
         Ctrl["Agentic controller<br/>reason · retrieve · inspect"]
@@ -183,8 +183,8 @@ The held-out figures in arXiv v1 (Falcon-40B, −48.9%) could not be traced to a
 | Outcome | Status |
 |---|---|
 | Matched ablation: frozen vs un-gated vs IGCA (Falcon-7B, 5 seeds) | ✅ done, logs in `runs/` |
-| Falcon-40B held-out loss (arXiv v1) | ❌ withdrawn, not traceable to a run |
-| Matched Falcon-40B ablation | ⏳ not re-run |
+| Falcon-40B held-out loss (arXiv v1) | ⚠️ not verified: superseded by the Falcon-7B runs |
+| Matched Falcon-40B ablation (gated vs un-gated) | ⏳ planned for arXiv v2 |
 | OpenLLaMA / BLOOM checkpoints | 🛠️ hooks tested on both layouts; runs pending |
 | Audio / video encoders · downstream VQA or hallucination benchmarks · latency | ⏳ design scope |
 
@@ -210,8 +210,8 @@ python igca.py --count tiiuae/falcon-40b               # 906,166,278 trainable p
 ```bash
 pip install bitsandbytes
 python falcon_local.py --model tiiuae/falcon-7b  --data flickr8k --steps 2000
-python falcon_local.py --model tiiuae/falcon-40b --data flickr8k --steps 59500                    # IGCA
-python falcon_local.py --model tiiuae/falcon-40b --data flickr8k --steps 59500 --variant ungated  # ablation
+python falcon_local.py --model tiiuae/falcon-40b --data flickr8k --steps 6000                   # IGCA
+python falcon_local.py --model tiiuae/falcon-40b --data flickr8k --steps 6000 --variant ungated  # ablation
 ```
 
 **3 · Notebook** – [`igca_falcon40b.ipynb`](igca_falcon40b.ipynb) runs the full Falcon-40B experiment (pre-flight → load → identity check → train → evaluate → manifest). Falcon-40B needs about 85 GB of disk and roughly 25–30 GB of GPU memory in 4-bit (backbone plus bridges and optimiser state).
@@ -241,8 +241,7 @@ IGCA-Zero-Gated-Cross-Attention/
 ## 🧭 Roadmap
 
 - [x] **Matched ablation on Falcon-7B (5 seeds)**: see [Results](#-results)
-- [ ] **Matched Falcon-40B ablation: frozen vs un-gated vs IGCA** (same data, seed, budget). Code is complete and runs as-is on a ≥ 30 GB GPU:
-      `python falcon_local.py --model tiiuae/falcon-40b --data flickr8k --steps 59500 --variant ungated`
+- [ ] **Falcon-40B re-run: gated vs un-gated, several seeds, 6,000 steps** (planned for arXiv v2). Runs as-is on a ≥ 48 GB GPU:
 - [ ] Validation-based checkpoint selection with a single final evaluation on the untouched Flickr8k test split
 - [ ] All five captions per image (30,000 pairs) and FP32 adapter master weights
 - [ ] OpenLLaMA and BLOOM backbones; audio (Whisper) and video (VideoMAE v2) encoders
@@ -253,7 +252,7 @@ IGCA-Zero-Gated-Cross-Attention/
 
 ## 📝 Notes on arXiv v1
 
-Short reconciliation (details in [ERRATA.md](ERRATA.md)). The IGCA mechanism is unchanged. The Falcon-40B held-out figures in v1 could not be traced to a run and are withdrawn. Verified Falcon-7B results (5 seeds, fully logged) are in [Results](#-results).
+Short reconciliation (details in [ERRATA.md](ERRATA.md)). The IGCA mechanism is unchanged. The Falcon-40B held-out figures in v1 are not verified (the v1 held-out split was empty) and are superseded by the logged Falcon-7B runs in [Results](#-results). A Falcon-40B re-run is planned for arXiv v2.
 | v1 | Correct | |
 |---|---|---|
 | 40,404,961,288 trainable parameters | **906,166,278** | transcription error; `python igca.py --count tiiuae/falcon-40b` |
